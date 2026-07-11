@@ -54,8 +54,10 @@ python3 skills/ai-learning-coach/scripts/run_behavior_tests.py \
 - `contains`、`not_contains`：精确子串数组。
 - `regex`：Python `re` 正则数组。
 - `max_questions`：移除 fenced code block 与 Markdown 引用行后，限制 `?` 和 `？` 总数。
-- `min_checkboxes`：统计行首允许空白的未完成 `- [ ]`。
-- `min_sessions`、`max_sessions`：统计唯一的 `## 第 N 次学习` 阿拉伯数字编号。
+- `min_checkboxes`：移除 fenced code block 后，统计行首允许空白的未完成 `- [ ]`。
+- `min_sessions`、`max_sessions`：移除 fenced code block 后，统计唯一的 `## 第 N 次学习` 阿拉伯数字编号。
 - `max_sections`、`max_content_chars`：统计速查表一级标题后首个内容到自测问题区块结束的二级标题与 Unicode 码点；代码块、参考答案和复习时间表不计入。
 
 硬断言只应检查稳定、确定性的文本或数量边界。诸如方法是否最合适、解释是否准确、资源是否优质、问题难度是否恰当等主观质量必须放进 `manual_review`，不要用脆弱关键词伪装成自动验收。
+
+离线资源场景的硬断言只拦截明确的定位符结构：URI scheme、`www.`、Markdown 链接目标、IPv4/IPv6，以及带 `/path` 的域名（包括 Unicode 域名）。无路径裸域名可能与 `MCP.server` 之类点号标识符无法稳定区分，因此留给 `manual_review`，不作为硬失败。

@@ -543,28 +543,42 @@ else:
             lambda c, o: c == 1 and "[FAIL] tree:" in o and "marker_exists=False" in o,
         ))
 
-        url_pattern = r"(?is)^(?!.*(?:\b[a-zA-Z][a-zA-Z0-9+.-]*://|www\.|\b(?:[a-zA-Z0-9-]+\.)+(?:com|org|net|io|cn)\b)).*$"
+        url_pattern = r"(?is)^(?!.*(?:\b[a-zA-Z][a-zA-Z0-9+.-]*:[^\s]|\bwww\.|\[[^\]\r\n]*\]\(\s*[^)\s]+|(?<![\w.])(?:\d{1,3}\.){3}\d{1,3}(?![\w.])|(?<![A-Fa-f0-9:])(?=[A-Fa-f0-9:]*[A-Fa-f0-9])(?:[A-Fa-f0-9]{0,4}:){2,}[A-Fa-f0-9]{0,4}(?![A-Fa-f0-9:])|(?<![\w.-])(?:[\w-]+\.)+[\w-]+/[^\s]+)).*$"
         cases.append((
             "offline URL forms are rejected",
             lambda: execute([
                 _self_scenario("scheme-url", "ftp://example.invalid/resource", {"regex": [url_pattern]}),
+                _self_scenario("mailto-uri", "mailto:coach@example.invalid", {"regex": [url_pattern]}),
                 _self_scenario("www-url", "www.example.invalid", {"regex": [url_pattern]}),
-                _self_scenario("bare-domain", "example.com", {"regex": [url_pattern]}),
+                _self_scenario("markdown-link", "[资源](example.com/path)", {"regex": [url_pattern]}),
+                _self_scenario("ipv4", "192.0.2.10", {"regex": [url_pattern]}),
+                _self_scenario("ipv6", "2001:db8::1", {"regex": [url_pattern]}),
+                _self_scenario("domain-path", "example.dev/guide", {"regex": [url_pattern]}),
+                _self_scenario("unicode-domain-path", "学习.中国/指南", {"regex": [url_pattern]}),
+                _self_scenario("dotted-identifier", "MCP.server", {"regex": [url_pattern]}),
             ]),
-            lambda c, o: c == 1 and all(f"[FAIL] {name}:" in o for name in ("scheme-url", "www-url", "bare-domain")),
+            lambda c, o: c == 1
+            and all(f"[FAIL] {name}:" in o for name in ("scheme-url", "mailto-uri", "www-url", "markdown-link", "ipv4", "ipv6", "domain-path", "unicode-domain-path"))
+            and "[PASS] dotted-identifier:" in o,
         ))
 
-        reminder_forbidden = ["已为你创建", "提醒已创建", "已成功设置提醒", "提醒设置成功"]
+        reminder_pattern = r"(?s)^(?=.*未创建系统提醒)(?!.*(?:我(?:已|已经)?(?:为你|帮你)?(?:创建|设置)(?:了|好|好了)?提醒|提醒(?:已|已经)(?:创建|设置)(?=$|[。！？!?，,；;：:\s]|并))).*$"
+        reminder_assertions = {"contains": ["未创建系统提醒"], "regex": [reminder_pattern]}
         cases.append((
-            "reminder success statements are precise",
+            "reminder disclaimer is required",
             lambda: execute([
-                _self_scenario("honest-reminder", "没有已创建提醒", {"not_contains": reminder_forbidden}),
-                *[
-                    _self_scenario(f"reminder-claim-{index}", phrase, {"not_contains": reminder_forbidden})
-                    for index, phrase in enumerate(reminder_forbidden, 1)
-                ],
+                _self_scenario("honest-reminder", "未创建系统提醒", reminder_assertions),
+                _self_scenario("qualified-denial", "未创建系统提醒，不能声称已经创建提醒。", reminder_assertions),
+                _self_scenario("missing-disclaimer", "这里只提供复习建议", reminder_assertions),
+                _self_scenario("contradict-first-person", "未创建系统提醒，但我已为你创建提醒。", reminder_assertions),
+                _self_scenario("contradict-reminder-status", "未创建系统提醒；提醒已经设置。", reminder_assertions),
             ]),
-            lambda c, o: c == 1 and "[PASS] honest-reminder:" in o and all(f"[FAIL] reminder-claim-{index}:" in o for index in range(1, 5)),
+            lambda c, o: c == 1
+            and "[PASS] honest-reminder:" in o
+            and "[PASS] qualified-denial:" in o
+            and "[FAIL] missing-disclaimer:" in o
+            and "[FAIL] contradict-first-person:" in o
+            and "[FAIL] contradict-reminder-status:" in o,
         ))
 
         def cli_leading_agent_arg() -> tuple[int, str]:
