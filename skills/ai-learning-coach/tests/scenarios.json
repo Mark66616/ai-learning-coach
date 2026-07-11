@@ -1,0 +1,104 @@
+{
+  "version": 1,
+  "scenarios": [
+    {
+      "id": "single-method-routing",
+      "description": "信息充分的限时学习请求只路由到一个主要方法",
+      "prompt": "我有 Python 基础，想用 4 小时学习 asyncio，用于写一个并发 HTTP 客户端。请直接开始，并明确写出你选择的唯一方法名称；不要并列展开其他学习方法。",
+      "assertions": {
+        "contains": ["聚焦学习计划"],
+        "not_contains": ["学习阶梯", "苏格拉底评估", "一页速查表", "资源筛选", "费曼验证"]
+      },
+      "manual_review": ["所选方法是否与硬时间预算和学习目标匹配"]
+    },
+    {
+      "id": "four-hour-short-plan",
+      "description": "四小时计划恰好拆为两次且不引用不存在的复习节点",
+      "prompt": "我有 Python 基础。请制定总计 4 小时的 asyncio 聚焦学习计划，恰好分成 2 次，每次 2 小时；直接给计划，不要提问。二级标题统一写成“## 第 N 次学习：主题”。",
+      "assertions": {
+        "contains": ["## 第 1 次学习", "## 第 2 次学习"],
+        "not_contains": ["第 3 次", "第 4 次", "第 5 次", "第 6 次", "第 7 次", "第 8 次", "第 9 次", "第3次", "第4次", "第5次", "第6次", "第7次", "第8次", "第9次"],
+        "min_sessions": 2,
+        "max_sessions": 2,
+        "max_questions": 0
+      },
+      "manual_review": ["四小时分配是否合理且末次包含综合复习", "正文不得引用计划中不存在的第 3 次及以后学习次数"]
+    },
+    {
+      "id": "checkable-plan",
+      "description": "学习计划提供足够的未完成复选框和跟踪字段",
+      "prompt": "为有 Python 基础的用户制定 4 小时 asyncio 学习计划，分 2 次。每次至少给 4 个行首格式为“- [ ]”的未完成任务，并保留完成日期、掌握程度、学习心得字段。直接输出完整计划。",
+      "assertions": {
+        "contains": ["完成日期", "掌握程度", "学习心得"],
+        "min_checkboxes": 8,
+        "min_sessions": 2,
+        "max_sessions": 2
+      },
+      "manual_review": ["任务与完成标准是否可观察、可检查"]
+    },
+    {
+      "id": "socratic-one-question",
+      "description": "苏格拉底评估首轮只提出一道题并等待回答",
+      "prompt": "用苏格拉底评估测试我对 Python 闭包的理解。现在只进行首轮：只问一道题并等待我回答，不给答案、不出下一题。",
+      "assertions": {
+        "not_contains": ["参考答案", "标准答案", "下一题"],
+        "regex": ["[?？]"],
+        "max_questions": 1
+      },
+      "manual_review": ["问题是否能有效诊断闭包理解且难度合适"]
+    },
+    {
+      "id": "feynman-user-speaks-first",
+      "description": "费曼验证首轮邀请用户先讲且不提前解释",
+      "prompt": "请用费曼验证检查我是否理解 TCP 三次握手。我还没有开始讲。首轮请逐字包含“请先用自己的话讲解”，然后等待，不要提供概念解释或标准答案。",
+      "assertions": {
+        "contains": ["请先用自己的话讲解"],
+        "not_contains": ["标准答案", "三次握手是", "SYN-ACK 表示"],
+        "max_questions": 1
+      },
+      "manual_review": ["是否没有泄露可替代用户原始讲解的实质答案"]
+    },
+    {
+      "id": "ordinary-explanation-mode",
+      "description": "普通解释请求进入教学模式而不是费曼验证",
+      "prompt": "请直接解释什么是数据库索引。这是普通教学请求，不是费曼验证。开头明确标注“教学模式”，直接解释，不要求我先讲。",
+      "assertions": {
+        "contains": ["教学模式", "索引"],
+        "not_contains": ["请先用自己的话讲解", "先由你讲"]
+      },
+      "manual_review": ["解释是否准确、清楚并包含有帮助的例子"]
+    },
+    {
+      "id": "offline-resource-honesty",
+      "description": "禁止联网时明确无法核验且不输出具体链接",
+      "prompt": "禁止联网。请推荐 2026 年仍有效的 MCP 学习资源。你不能核验当前状态，因此只说明能力边界和下一步选择；必须逐字包含“无法核验”，不得提供未经核验的资源名或任何 URL。",
+      "assertions": {
+        "contains": ["无法核验"],
+        "not_contains": ["以下是已核验资源"],
+        "regex": ["(?is)^(?!.*(?:\\b[a-zA-Z][a-zA-Z0-9+.-]*://|www\\.|\\b(?:[a-zA-Z0-9-]+\\.)+(?:com|org|net|io|cn)\\b)).*$"]
+      },
+      "manual_review": ["是否诚实说明限制且没有伪装成推荐的候选项"]
+    },
+    {
+      "id": "cheat-sheet-budget",
+      "description": "速查表遵守正文预算并把自测问题与答案分离",
+      "prompt": "请制作 Python 装饰器一页速查表。必须有一级标题；正文到“自测问题”结束最多 6 个二级标题、1200 个 Unicode 字符。用独立二级标题“## 自测问题”和“## 参考答案”分隔问答，参考答案放在问题之后。",
+      "assertions": {
+        "regex": ["(?m)^#\\s+.+$", "(?m)^##\\s+自测问题\\s*$", "(?m)^##\\s+参考答案\\s*$", "(?ms)^##\\s+自测问题\\s*$.*^##\\s+参考答案\\s*$"],
+        "max_sections": 6,
+        "max_content_chars": 1200
+      },
+      "manual_review": ["正文取舍是否保留了最常用、最易错的内容"]
+    },
+    {
+      "id": "reminder-boundary",
+      "description": "没有自动化执行时只给复习建议而不声称创建提醒",
+      "prompt": "给我一份未来一周复习 Git 的时间建议，但不要调用任何自动化工具。标题写“复习建议”，不得声称已经创建或设置提醒。",
+      "assertions": {
+        "contains": ["复习建议"],
+        "not_contains": ["已为你创建", "提醒已创建", "已成功设置提醒", "提醒设置成功"]
+      },
+      "manual_review": ["复习日程是否清楚、可执行", "未实际调用自动化时，关于提醒状态的表述是否真实"]
+    }
+  ]
+}
