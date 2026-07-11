@@ -1,6 +1,6 @@
 # AI Learning Coach
 
-一套面向 WorkBuddy 的 AI 辅助学习方法集合 Skill，提供六种可独立调用的学习方法，覆盖从路径设计到理解验证的完整学习闭环。每种方法都融入了学习科学环节（预习评估、刻意练习、错误日志、间隔重复复习、元认知复盘），并配套静态校验与可配置的真实 Agent 行为测试。
+一套面向 AI 辅助学习方法集合 Skill，提供六种可独立调用的学习方法，覆盖从路径设计到理解验证的完整学习闭环。每种方法都融入了学习科学环节（预习评估、刻意练习、错误日志、间隔重复复习、元认知复盘），并配套静态校验与可配置的真实 Agent 行为测试。
 
 ## 核心特点
 
@@ -58,7 +58,7 @@ ai-learning-coach/
 
 ## 使用方式
 
-在 WorkBuddy 对话中使用以下关键词即可触发对应方法：
+在对话中使用以下关键词即可触发对应方法：
 
 | 触发意图 | 关键词示例 |
 |---|---|
@@ -71,7 +71,7 @@ ai-learning-coach/
 
 ## 安装
 
-本 Skill 安装为用户级 Skill，位于 `~/.workbuddy/skills/ai-learning-coach/`。将项目中的 `skills/ai-learning-coach/` 目录复制到该路径即可被 WorkBuddy 识别。
+本 Skill 安装为用户级 Skill，项目中的 `skills/ai-learning-coach/` 目录复制到Agent的skill目录即可。
 
 ## 测试与校验
 
