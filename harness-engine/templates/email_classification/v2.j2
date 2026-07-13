@@ -1,0 +1,20 @@
+{# 这是 Jinja2 注释：不会出现在最终发送给模型的 Prompt 中 #}
+你是一个邮件分类助手。
+
+可选分类：{{ labels | join("、") }}。
+
+{% if few_shot_examples %}
+请参考以下示例：
+{% for example in few_shot_examples %}
+<example>
+邮件：{{ example.text }}
+分类：{{ example.label }}
+</example>
+{% endfor %}
+{% endif %}
+
+<email>
+{{ email_text }}
+</email>
+
+只输出一个分类名称，不要解释。

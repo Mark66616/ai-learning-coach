@@ -1,0 +1,21 @@
+name: email_classification
+current_version: v2.1
+versions:
+  v1:
+    template: v1.j2
+    description: "基础版本，无 few-shot"
+    created: 2026-07-01
+  v2:
+    template: v2.j2
+    description: "添加 few-shot 示例"
+    created: 2026-07-05
+    parent: v1
+  v2.1:
+    template: v2.1.j2
+    description: "优化 few-shot 示例选择"
+    created: 2026-07-08
+    parent: v2
+ab_test:
+  active: true
+  variants: [v2, v2.1]
+  traffic_split: {v2: 50, v2.1: 50}
